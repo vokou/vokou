@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "Vokou": {
+      "applicationId": "JUXCXuysBgoulgFgGDGzc9elQNx4q84XiaDBoYyo"
+    },
+    "_default": {
+      "link": "Vokou"
+    }
+  }
+}
