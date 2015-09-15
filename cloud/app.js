@@ -118,7 +118,10 @@ app.get('/search',function(req,res){
     return res.status(500).send("checkout Wrong");
   }else if( !req.query.city){
     return res.status(500).send("city Wrong");
+  }else if( !req.query.source){
+    return res.status(500).send("source Wrong");
   }
+
   req.query.country = req.query.country.toLowerCase();
   req.query.country = convert[req.query.country];
   if (req.query.country == undefined){
@@ -135,12 +138,19 @@ app.get('/search',function(req,res){
   arrivalDate = req.query.checkin;
   departureDate = req.query.checkout;
   city = req.query.city.replace(' ', '+');
-  spgsource = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?localeCode=en_US&city=" + city + "&stateCode=" + state + "&countryCode=" + country + "&searchType=location&hotelName=&"+"currencyCode=USD&arrivalDate=" + arrivalDate + "&departureDate=" + departureDate + "&numberOfRooms=1&numberOfAdults=1&numberOfChildren=0&iataNumber=";
+  var source = req.query.source;
+  if(source != 'spg'){
+    spgsource = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?localeCode=en_US&city=" + city + "&stateCode=" + state + "&countryCode=" + country + "&searchType=location&hotelName=&"+"currencyCode=USD&arrivalDate=" + arrivalDate + "&departureDate=" + departureDate + "&numberOfRooms=1&numberOfAdults=1&numberOfChildren=0&iataNumber=";
+  }
+  else{
+    source = ''
+  }
+
+  if(source == ''){
+    return res.status(500).end('Wrong source');
+  }
+  
   res.end(encrypt(spgsource));
-
-
-
-  //
 });
 // // Example reading from the request query string of an HTTP get request.
 // app.get('/test', function(req, res) {

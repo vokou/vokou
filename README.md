@@ -1,6 +1,6 @@
 # vokou
 Sample Usage:
-https://vokou.parseapp.com/search?country=china&state=&city=shanghai&checkin=09/23/2015&checkout=09/24/2015
+https://vokou.parseapp.com/search?country=china&state=&city=shanghai&checkin=09/23/2015&checkout=09/24/2015&source=spg
 
 After calling this you will get a secret append that secret in the secret field as following
 
