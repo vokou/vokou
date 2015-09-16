@@ -139,7 +139,7 @@ app.get('/search',function(req,res){
   departureDate = req.query.checkout;
   city = req.query.city.replace(' ', '+');
   var source = req.query.source;
-  if(source != 'spg'){
+  if(source == 'spg'){
     source = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?localeCode=en_US&city=" + city + "&stateCode=" + state + "&countryCode=" + country + "&searchType=location&hotelName=&"+"currencyCode=USD&arrivalDate=" + arrivalDate + "&departureDate=" + departureDate + "&numberOfRooms=1&numberOfAdults=1&numberOfChildren=0&iataNumber=";
   }
   else{
