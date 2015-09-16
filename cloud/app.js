@@ -140,7 +140,7 @@ app.get('/search',function(req,res){
   city = req.query.city.replace(' ', '+');
   var source = req.query.source;
   if(source != 'spg'){
-    spgsource = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?localeCode=en_US&city=" + city + "&stateCode=" + state + "&countryCode=" + country + "&searchType=location&hotelName=&"+"currencyCode=USD&arrivalDate=" + arrivalDate + "&departureDate=" + departureDate + "&numberOfRooms=1&numberOfAdults=1&numberOfChildren=0&iataNumber=";
+    source = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?localeCode=en_US&city=" + city + "&stateCode=" + state + "&countryCode=" + country + "&searchType=location&hotelName=&"+"currencyCode=USD&arrivalDate=" + arrivalDate + "&departureDate=" + departureDate + "&numberOfRooms=1&numberOfAdults=1&numberOfChildren=0&iataNumber=";
   }
   else{
     source = ''
@@ -149,8 +149,8 @@ app.get('/search',function(req,res){
   if(source == ''){
     return res.status(500).end('Wrong source');
   }
-  
-  res.end(encrypt(spgsource));
+
+  res.end(encrypt(source));
 });
 // // Example reading from the request query string of an HTTP get request.
 // app.get('/test', function(req, res) {
