@@ -1,7 +1,7 @@
 
 // These two lines are required to initialize Express in Cloud Code.
 var crypto = require('crypto'),
-
+Cache = require("cloud/cache.js");
 http = require('http');
 User = require("cloud/users.js");
 var convert = require('cloud/convert.js');
@@ -40,6 +40,37 @@ function decrypt(text){
 app.get('/',function(req,res){
   res.send('/mainpage');
 });
+
+
+app.post('/cache/:hashvalue', function(req, res){
+  if(req.body.result && req.params.hashvalue){
+    Cache.save(req.params.hashvalue, req.body.result, function(result){
+      if(result != "OK"){
+        res.status(500).send("FAIL");
+      }else{
+        res.send("OK");
+      }
+    });
+  }else{
+    res.status(500).send("Lack of hashvalue or result");
+  }
+});
+
+
+app.get('/cache/:hashvalue', function(req, res){
+  if( req.params.hashvalue ){
+    Cache.fetch(req.params.hashvalue,  function(result){
+      if(result == ""){
+        res.status(500).send("FAIL");
+      }else{
+        res.send(result);
+      }
+    });
+  }else{
+    res.status(500).send("Lack of hashvalue or result");
+  }
+});
+
 
 app.post('/apis/users', function(req, res) {
   if(req.body.email && req.body.password){
