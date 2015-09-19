@@ -20,12 +20,12 @@ algorithm = 'aes-256-ctr',
 password = 'We are fucking SPG';
 app.use(express.cookieParser('We are fucking SPG'));
 app.use(parseExpressCookieSession({ cookie: { maxAge: 3600000 } }));
-app.use(redirectUnmatched);
+
 
 
 
 function redirectUnmatched(req, res) {
-  res.redirect("/index.html");
+  res.render("index");
 }
 
 
@@ -170,4 +170,5 @@ app.get('/search',function(req,res){
 // });
 
 // Attach the Express app to Cloud Code.
+app.use(redirectUnmatched);
 app.listen();
