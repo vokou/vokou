@@ -20,6 +20,13 @@ algorithm = 'aes-256-ctr',
 password = 'We are fucking SPG';
 app.use(express.cookieParser('We are fucking SPG'));
 app.use(parseExpressCookieSession({ cookie: { maxAge: 3600000 } }));
+app.use(redirectUnmatched);
+
+
+
+function redirectUnmatched(req, res) {
+  res.redirect("/index.html");
+}
 
 
 function encrypt(text){
@@ -37,11 +44,6 @@ function decrypt(text){
 }
 // This is an example of hooking up a request handler with a specific request
 // path and HTTP verb using the Express routing API.
-app.get('/',function(req,res){
-  res.send('/mainpage');
-});
-
-
 app.post('/cache/:hashvalue', function(req, res){
   if(req.body.result && req.params.hashvalue){
     Cache.save(req.params.hashvalue, req.body.result, function(result){
@@ -87,14 +89,6 @@ app.post('/apis/users', function(req, res) {
 });
 
 
-app.get('/register', function(req, res) {
-  var currentUser = Parse.User.current();
-  if(currentUser){
-    res.redirect('/me');
-  }
-  //should be else branch here
-  res.render('register.ejs');
-});
 
 app.get('/apis/users', function(req, res) {
   if(req.query.email && req.query.password){
@@ -116,28 +110,9 @@ app.get('/apis/users/logout', function(req, res) {
   if(currentUser){
     User.logout();
   }
-  res.redirect('/mainpage');
+  res.redirect('/');
 });
 
-
-app.get('/me', function(req, res) {
-  var currentUser = Parse.User.current();
-  if (currentUser) {
-    res.send("This is me");
-  } else {
-    res.redirect('/mainpage');
-  }
-});
-
-
-app.get('/mainpage', function(req, res) {
-  var currentUser = Parse.User.current();
-  if (currentUser) {
-    res.redirect('/me');
-  } else {
-    res.send('This is main page');
-  }
-});
 
 app.get('/search',function(req,res){
   //Date format: mm/dd/yyyy
@@ -180,7 +155,6 @@ app.get('/search',function(req,res){
   if(source == ''){
     return res.status(500).end('Wrong source');
   }
-
   res.end(encrypt(source));
 });
 // // Example reading from the request query string of an HTTP get request.
