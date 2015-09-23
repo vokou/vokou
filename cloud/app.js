@@ -115,10 +115,9 @@ app.get('/apis/users/logout', function(req, res) {
 
 
 app.get('/search',function(req,res){
+  res.setHeader("Access-Control-Allow-Origin","*");
   //Date format: mm/dd/yyyy
-  if( !req.query.country ){
-    return res.status(500).send("Country wrong");
-  }else if( !req.query.checkin ){
+  if( !req.query.checkin ){
     return res.status(500).send("checkin Wrong");
   }else if( !req.query.checkout ){
     return res.status(500).send("checkout Wrong");
@@ -128,18 +127,22 @@ app.get('/search',function(req,res){
     return res.status(500).send("source Wrong");
   }
 
-  req.query.country = req.query.country.toLowerCase();
-  req.query.country = convert[req.query.country];
-  if (req.query.country == undefined){
-    return res.status(500).send("Country wrong")
+  country = '';
+  if(req.query.country){
+    req.query.country = req.query.country.toLowerCase();
+    req.query.country = convert[req.query.country];
+    if (req.query.country == undefined){
+      return res.status(500).send("Country wrong")
+    }
+    country = req.query.country;
   }
-  country = req.query.country;
+  
   state = '';
   if(country == 'us'){
     if( !req.query.state){
       return res.status(500).send("state Wrong");
     }
-    state = convert[req.query.state.toLowerCase()];
+    state = req.query.state.toLowerCase();
   }
   arrivalDate = req.query.checkin;
   departureDate = req.query.checkout;
