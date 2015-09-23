@@ -115,7 +115,7 @@ var list = {
   "kenya": "ke",
   "kiribati": "ki",
   "korea, democratic people\"s republic of": "kp",
-  "korea, republic of": "kr",
+  "south korea": "kr",
   "kuwait": "kw",
   "kyrgyzstan": "kg",
   "lao people\"s democratic republic": "la",
