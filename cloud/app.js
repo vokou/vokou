@@ -153,7 +153,7 @@ app.get('/search',function(req,res){
       source = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?localeCode=en_US&city=" + city + "&stateCode=" + state + "&countryCode=" + country + "&searchType=location&hotelName=&"+"currencyCode=USD&arrivalDate=" + arrivalDate + "&departureDate=" + departureDate + "&numberOfRooms=1&numberOfAdults=1&numberOfChildren=0&iataNumber=";
     }
     else{
-      source = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?departureDate="+departureDate+ "&searchType=&complexSearchField="+ city+"&propertyIds=&arrivalDate="+arrivalDate+"&localeCode=en_US&numberOfRooms=1&numberOfAdults=1&skinCode=SPG&iATANumber=&numberOfChildren=0"
+      source = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?departureDate="+departureDate+ "&searchType=&complexSearchField="+ city+"&propertyIds=&arrivalDate="+arrivalDate+"&localeCode=en_US&numberOfRooms=1&numberOfAdults=1&skinCode=SPG&iATANumber=&numberOfChildren=0&currencyCode=USD"
       // source = "http://www.starwoodhotels.com/preferredguest/search/results/grid.html?localeCode=en_US&complexSearchField=" + city + "&searchType=location&hotelName=&"+"currencyCode=USD&arrivalDate=" + arrivalDate + "&departureDate=" + departureDate + "&numberOfRooms=1&numberOfAdults=1&numberOfChildren=0&iataNumber=";
     }
   }
