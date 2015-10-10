@@ -2,7 +2,8 @@
 // These two lines are required to initialize Express in Cloud Code.
 var crypto = require('crypto'),
 Cache = require("cloud/cache.js");
-Invite = require("cloud/invite.js")
+Invite = require("cloud/invite.js");
+Mail = require("cloud/mail.js");
 http = require('http');
 User = require("cloud/users.js");
 var convert = require('cloud/convert.js');
@@ -25,7 +26,7 @@ app.use(parseExpressCookieSession({ cookie: { maxAge: 3600000 } }));
 app.use(cors);
 
 function cors(req, res,next){
-  res.setHeader("Access-Control-Allow-Origin","http://127.0.0.1:63342");
+  res.setHeader("Access-Control-Allow-Origin","*");
   res.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept")
   res.setHeader("Access-Control-Allow-Credentials","true");
   next();
@@ -99,9 +100,13 @@ app.post('/apply', function(req, res){
   if(req.body.email){
     Invite.new(req.body.email,function (result, object) {
       if(result == 'ok'){
-        res.end(object.id);
+        result = {"status":"ok"};
+        // Mail.send(req.body.email,object.id);
+        res.json(result);
       }else{
-        res.status(403).send(result);
+        //Code 0 for already registered
+        result = {"error": 0}
+        res.status(403).json(result);
       }
     });
   }else{
@@ -196,10 +201,10 @@ app.get('/search',function(req,res){
     return res.status(500).send("source Wrong");
   }
 
-  var currentUser = Parse.User.current();
-  if(!currentUser){
-    return res.status(403).send("You didn't login");
-  }
+  // var currentUser = Parse.User.current();
+  // if(!currentUser){
+  //   return res.status(403).send("You didn't login");
+  // }
 
   country = '';
   if(req.query.country){
