@@ -2,6 +2,7 @@
 // These two lines are required to initialize Express in Cloud Code.
 var crypto = require('crypto'),
 Cache = require("cloud/cache.js");
+Invite = require("cloud/invite.js")
 http = require('http');
 User = require("cloud/users.js");
 var convert = require('cloud/convert.js');
@@ -21,8 +22,14 @@ password = 'We are fucking SPG';
 app.use(express.cookieParser('We are fucking SPG'));
 app.use(parseExpressCookieSession({ cookie: { maxAge: 3600000 } }));
 
+app.use(cors);
 
-
+function cors(req, res,next){
+  res.setHeader("Access-Control-Allow-Origin","http://127.0.0.1:63342");
+  res.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept")
+  res.setHeader("Access-Control-Allow-Credentials","true");
+  next();
+}
 
 function redirectUnmatched(req, res) {
   res.render("index");
@@ -59,8 +66,8 @@ app.post('/cache/:hashvalue', function(req, res){
 });
 
 
-app.get('/cache/:hashvalue', function(req, res){
-  if( req.params.hashvalue ){
+app.get('/nmg/:city', function(req, res){
+  if( req.params.city ){
     Cache.fetch(req.params.hashvalue,  function(result){
       if(result == ""){
         res.status(500).send("FAIL");
@@ -73,39 +80,102 @@ app.get('/cache/:hashvalue', function(req, res){
   }
 });
 
-
-app.post('/apis/users', function(req, res) {
-  if(req.body.email && req.body.password){
-    User.register(req.body.email, req.body.password, function(result){
-      if(result != "ok"){
-        res.status(500).send(result);
+app.get('/cache/:hashvalue', function(req, res){
+  if( req.params.hashvalue ){
+    Cache.fetch(req.params.hashvalue,  function(result){
+      if(result == ""){
+        res.status(500).send("FAIL");
       }else{
-        res.redirect('/me');
+        res.send(result);
       }
     });
   }else{
-    res.status(500).send("Lack of parameter!");
+    res.status(500).send("Lack of hashvalue or result hash get");
+  }
+});
+
+
+app.post('/apply', function(req, res){
+  if(req.body.email){
+    Invite.new(req.body.email,function (result, object) {
+      if(result == 'ok'){
+        res.end(object.id);
+      }else{
+        res.status(403).send(result);
+      }
+    });
+  }else{
+    res.status(403).send("Lack of parameters apply post!");
+  }
+});
+
+app.post('/users', function(req, res) {
+  if(req.body.email && req.body.password && req.body.code){
+    if(req.body.code){
+      Invite.find(req.body.code, function (result,object) {
+        if(result == 'ok'){
+          User.register(req.body.email, req.body.password, function(result, object){
+            if(result != "ok"){
+              res.status(403).send(result);
+            }else{
+              delete object["id"];
+              delete object["password"];
+              delete object["createdAt"];
+              delete object["updatedAt"];
+              res.json(object);
+              object.destroy({});
+            }
+          });
+        }
+        else{
+          res.status(403).send(result);
+        }
+      });
+    }
+    else{
+      User.register(req.body.email, req.body.password, function(result){
+        if(result != "ok"){
+          res.status(403).send(result);
+        }else{
+          res.send('OK');
+        }
+      });
+    }
+  }else{
+    if(!req.body.email){
+      res.status(500).send("Lack of parameters post mail!");
+    }
+    else if(!req.body.password){
+      res.status(500).send("Lack of parameters post pw=d!");
+    }
+    else if(!req.body.code){
+      res.status(500).send("Lack of parameters post code!");
+    }
   }
 });
 
 
 
-app.get('/apis/users', function(req, res) {
+app.get('/users', function(req, res) {
   if(req.query.email && req.query.password){
-    User.login(req.query.email, req.query.password, function(result){
+    User.login(req.query.email, req.query.password, function(result, object){
       if(result != "ok"){
-        res.redirect('/mainpage');
+        res.status(403).send('not match');
       }else {
-        res.redirect('/me');
+        delete object["id"];
+        delete object["password"];
+        delete object["createdAt"];
+        delete object["updatedAt"];
+        res.json(object);
       }
     });
   }else{
-    res.status(500).send("Lack of parameter!");
+    res.status(403).send("Lack of parameters get!");
   }
 });
 
 
-app.get('/apis/users/logout', function(req, res) {
+app.get('/users/logout', function(req, res) {
   var currentUser = Parse.User.current();
   if(currentUser){
     User.logout();
@@ -115,7 +185,6 @@ app.get('/apis/users/logout', function(req, res) {
 
 
 app.get('/search',function(req,res){
-  res.setHeader("Access-Control-Allow-Origin","*");
   //Date format: mm/dd/yyyy
   if( !req.query.checkin ){
     return res.status(500).send("checkin Wrong");
@@ -125,6 +194,11 @@ app.get('/search',function(req,res){
     return res.status(500).send("city Wrong");
   }else if( !req.query.source){
     return res.status(500).send("source Wrong");
+  }
+
+  var currentUser = Parse.User.current();
+  if(!currentUser){
+    return res.status(403).send("You didn't login");
   }
 
   country = '';
@@ -143,6 +217,7 @@ app.get('/search',function(req,res){
       return res.status(500).send("state Wrong");
     }
     state = req.query.state.toLowerCase();
+    state = convert[state];
   }
   arrivalDate = req.query.checkin;
   departureDate = req.query.checkout;

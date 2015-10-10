@@ -9,7 +9,7 @@ var User={
 
     user.signUp(null, {
       success: function(user) {
-        callback("ok");
+        callback("ok",user);
       },
       error: function(user, error) {
         // Show the error message somewhere and let the user try again.
@@ -23,7 +23,7 @@ var User={
     console.log("login with: "+username+", "+password)
     Parse.User.logIn(username, password, {
       success: function(user) {
-        callback("ok")
+        callback("ok", user)
       },
       error: function(user, error) {
         callback("Error: " + error.message);
