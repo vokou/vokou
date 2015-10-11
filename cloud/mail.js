@@ -2,11 +2,12 @@ var Mailgun = require('mailgun');
 var api_key = 'key-fbdd2e17246967a5a70a066669e9fafd';
 var domain = 'mail.vokou.com';
 var from_who = 'apply@vokou.com';
+var inv = require('cloud/invite_html.js');
 
 Mailgun.initialize(domain, api_key);
 var Mail = {
   send: function (to, code) {
-    var html = 'Welcome,\n Use this code: ' + code + ' to register on <a href="https://www.vokou.com"> Vokou </a>.\n Now you can start make a big save on your next trip and Enjoy it!';
+    var text = 'Hi '+ to + '\n Congraduations! You recieved the Alpha test invitation code from vokou.com. This lets you access all our features. \n \n' + code + '\n \n \n Please visit www.vokou.com to use your code to register your website. Thank you.';
     // var data = {
     //   from: from_who,
     //   to: to,
@@ -18,8 +19,9 @@ var Mail = {
     Mailgun.sendEmail({
       to: to,
       from: "Vokou Team <apply@vokou.com>",
-      subject: "Congraduations! You recieve the Alpha test invitation code from Vokou!",
-      html: html
+      subject: "Congraduations! Your invitation code from Vokou!",
+      html: inv.get_html(to,code),
+      text: text
     }, {
       success: function(httpResponse) {
         console.log(httpResponse);
