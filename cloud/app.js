@@ -101,7 +101,7 @@ app.post('/apply', function(req, res){
     Invite.new(req.body.email,function (result, object) {
       if(result == 'ok'){
         result = {"status":"ok"};
-        // Mail.send(req.body.email,object.id);
+        Mail.send(req.body.email,object.id);
         res.json(result);
       }else{
         //Code 0 for already registered
