@@ -1,10 +1,10 @@
 var moment = require("moment");
 var CacheObject = Parse.Object.extend("cache");
-
+var time = 30;
 var Cache = {
   fetch:function(hashvalue, callback){
     var d = new Date();
-    var timeout = new Date(d.getDate()-1);
+    var timeout = new Date(d.getTime()-time*60000);
     var query = new Parse.Query(CacheObject);
     query.greaterThanOrEqualTo('updatedAt', timeout);
     query.equalTo("hash", hashvalue);

@@ -3,6 +3,7 @@
 var crypto = require('crypto'),
 Cache = require("cloud/cache.js");
 Invite = require("cloud/invite.js");
+Feedback = require("cloud/feedback.js");
 Mail = require("cloud/mail.js");
 http = require('http');
 User = require("cloud/users.js");
@@ -52,11 +53,40 @@ function decrypt(text){
 }
 // This is an example of hooking up a request handler with a specific request
 // path and HTTP verb using the Express routing API.
+app.post('/feedback', function(req, res){
+  content = JSON.parse(req.body.feedback);
+  console.log(content.browser);
+  if(!content.browser || !content.url || !content.note || !content.img || !content.html){
+    if(!content.browser){
+      return res.status(500).send("browser");
+    }
+    else if(!content.url){
+      return res.status(500).send("url");
+    }
+    else if(!content.note){
+      return res.status(500).send("note");
+    }
+    else if(!content.img){
+      return res.status(500).send("img");
+    }
+    else {
+      return res.status(500).send("html");
+    }
+  }else{
+    res.end("OK");
+    Feedback.save(content.browser, content.url, content.note, content.img, content.html, function (result) {
+      if(result != 'OK'){
+        alert(content.browser+" | "+content.url+" | "+content.note+" | "+content.img+" | "+content.html)
+      }
+    });
+  }
+});
+
 app.post('/cache/:hashvalue', function(req, res){
   if(req.body.result && req.params.hashvalue){
     Cache.save(req.params.hashvalue, req.body.result, function(result){
       if(result != "OK"){
-        res.status(500).send("FAIL");
+        res.status(404).send("FAIL");
       }else{
         res.send("OK");
       }
@@ -66,12 +96,15 @@ app.post('/cache/:hashvalue', function(req, res){
   }
 });
 
+app.get('/foundBRG', function(req, res){
+  res.end();
+});
 
 app.get('/nmg/:city', function(req, res){
   if( req.params.city ){
     Cache.fetch(req.params.hashvalue,  function(result){
       if(result == ""){
-        res.status(500).send("FAIL");
+        res.status(404).send("FAIL");
       }else{
         res.send(result);
       }
@@ -81,13 +114,24 @@ app.get('/nmg/:city', function(req, res){
   }
 });
 
+
 app.get('/cache/:hashvalue', function(req, res){
   if( req.params.hashvalue ){
     Cache.fetch(req.params.hashvalue,  function(result){
       if(result == ""){
-        res.status(500).send("FAIL");
+        res.send("FAIL");
       }else{
-        res.send(result);
+        if(req.query.id){
+          result = JSON.parse(result);
+          for(var i = 0 ; i < result.length ; i++){
+            if(result[i].propertyID == req.query.id){
+              return res.send(JSON.stringify(result[i]));
+            }
+          }
+          res.send("FAIL");
+        }else{
+          res.send(result);
+        }
       }
     });
   }else{
@@ -186,6 +230,13 @@ app.get('/users/logout', function(req, res) {
     User.logout();
   }
   res.redirect('/');
+});
+
+app.get('/redirect', function(req, res){
+  if(!req.query.url){
+    return res.status(500).send("No url");
+  }
+  res.redirect(req.query.url);
 });
 
 
