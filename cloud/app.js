@@ -98,6 +98,11 @@ app.post('/cache/:hashvalue', function(req, res){
 
 app.get('/foundBRG', function(req, res){
   res.end();
+  var dimensions = {
+  };
+  // Send the dimensions to Parse along with the 'search' event
+
+  Parse.Analytics.track('foudBRG', dimensions)
 });
 
 app.get('/nmg/:city', function(req, res){
@@ -236,7 +241,23 @@ app.get('/redirect', function(req, res){
   if(!req.query.url){
     return res.status(500).send("No url");
   }
-  res.redirect(req.query.url);
+  if(req.query.type){
+    var dimensions = {
+      type: req.query.type
+    };
+    // Send the dimensions to Parse along with the 'search' event
+
+    Parse.Analytics.track('redirect', dimensions)
+
+  }
+  if(req.query.type == 'brg'){
+    console.log(1111);
+    res.redirect( req.query.url.replace(/%3F/g, '?').replace(/%26/g, '&').replace(/%3f/g, '?').substring(req.query.url.indexOf('redirection=')+12) );
+  }else{
+    res.redirect( req.query.url);
+  }
+
+
 });
 
 
@@ -256,6 +277,11 @@ app.get('/search',function(req,res){
   // if(!currentUser){
   //   return res.status(403).send("You didn't login");
   // }
+  var dimensions = {
+  };
+  // Send the dimensions to Parse along with the 'search' event
+
+  Parse.Analytics.track('search', dimensions)
 
   country = '';
   if(req.query.country){
