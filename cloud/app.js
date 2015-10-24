@@ -88,7 +88,7 @@ app.post('/cache/:hashvalue', function(req, res){
   if(req.body.result && req.params.hashvalue){
     Cache.save(req.params.hashvalue, req.body.result, function(result){
       if(result != "OK"){
-        res.status(404).send("FAIL");
+        res.send("FAIL");
       }else{
         res.send("OK");
       }
@@ -126,7 +126,7 @@ app.get('/cache/:hashvalue', function(req, res){
   if( req.params.hashvalue ){
     Cache.fetch(req.params.hashvalue,  function(result){
       if(result == ""){
-        res.status(404).send("FAIL");
+        res.send("FAIL");
       }else{
         if(req.query.id){
           result = JSON.parse(result);
@@ -135,7 +135,7 @@ app.get('/cache/:hashvalue', function(req, res){
               return res.send(JSON.stringify(result[i]));
             }
           }
-          res.status(404).send("FAIL");
+          res.send("FAIL");
         }else{
           res.send(result);
         }
