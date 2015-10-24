@@ -26,6 +26,7 @@ app.use(parseExpressCookieSession({ cookie: { maxAge: 3600000 } }));
 
 app.use(cors);
 
+var current_inivite_open = true;
 function cors(req, res,next){
   res.setHeader("Access-Control-Allow-Origin","*");
   res.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept")
@@ -149,9 +150,14 @@ app.post('/apply', function(req, res){
   if(req.body.email){
     Invite.new(req.body.email,function (result, object) {
       if(result == 'ok'){
-        result = {"status":"ok"};
-        Mail.send(req.body.email,object.id);
-        res.json(result);
+        if(current_inivite_open){
+          result = {"status":"ok"};
+          Mail.send(req.body.email,object.id);
+          res.json(result);
+        }else{
+          result = {"status":"closed"};
+          res.status(404).json(result);
+        }
       }else{
         //Code 0 for already registered
         result = {"error": 0}
