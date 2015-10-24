@@ -166,7 +166,7 @@ app.post('/apply', function(req, res){
 app.post('/users', function(req, res) {
   if(req.body.email && req.body.password && req.body.code){
     if(req.body.code){
-      Invite.find(req.body.code, function (result,object) {
+      Invite.find(req.body.code, function (result,invite_object) {
         if(result == 'ok'){
           User.register(req.body.email, req.body.password, function(result, object){
             if(result != "ok"){
@@ -177,7 +177,8 @@ app.post('/users', function(req, res) {
               delete object["createdAt"];
               delete object["updatedAt"];
               res.json(object);
-              object.destroy({});
+              console.log("destroying!");
+              invite_object.destroy({});
             }
           });
         }
