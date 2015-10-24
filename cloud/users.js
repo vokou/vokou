@@ -14,7 +14,7 @@ var User={
       error: function(user, error) {
         // Show the error message somewhere and let the user try again.
         alert("Error: " + error.code + " " + error.message);
-        callback("Error: " + error.message);
+        callback('username');
       }
     });
   },

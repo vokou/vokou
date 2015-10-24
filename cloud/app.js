@@ -27,6 +27,7 @@ app.use(parseExpressCookieSession({ cookie: { maxAge: 3600000 } }));
 app.use(cors);
 
 var current_inivite_open = true;
+
 function cors(req, res,next){
   res.setHeader("Access-Control-Allow-Origin","*");
   res.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept")
@@ -125,7 +126,7 @@ app.get('/cache/:hashvalue', function(req, res){
   if( req.params.hashvalue ){
     Cache.fetch(req.params.hashvalue,  function(result){
       if(result == ""){
-        res.send("FAIL");
+        res.status(404).send("FAIL");
       }else{
         if(req.query.id){
           result = JSON.parse(result);
@@ -134,7 +135,7 @@ app.get('/cache/:hashvalue', function(req, res){
               return res.send(JSON.stringify(result[i]));
             }
           }
-          res.send("FAIL");
+          res.status(404).send("FAIL");
         }else{
           res.send(result);
         }
@@ -176,20 +177,22 @@ app.post('/users', function(req, res) {
         if(result == 'ok'){
           User.register(req.body.email, req.body.password, function(result, object){
             if(result != "ok"){
-              res.status(403).send(result);
+              re = {"error":result}
+              res.status(403).json(re);
             }else{
               delete object["id"];
               delete object["password"];
               delete object["createdAt"];
               delete object["updatedAt"];
               res.json(object);
-              console.log("destroying!");
-              invite_object.destroy({});
+              invite_object.set("registered",true);
+              invite_object.save(null,{});
             }
           });
         }
         else{
-          res.status(403).send(result);
+          re = {"error":result};
+          res.status(403).json(re);
         }
       });
     }

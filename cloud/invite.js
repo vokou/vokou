@@ -3,12 +3,13 @@ var query = new Parse.Query(InviteObject);
 var Invite={
   find:function(code, callback){
     // other fields can be set just like with Parse.Object
+    query.equalTo("registered",false);
     query.get(code,{
       success: function(object){
         callback('ok', object);
       },
       error: function (object) {
-        callback('no');
+        callback('code');
       }
     });
   },
@@ -22,7 +23,8 @@ var Invite={
             var inviteObject = new InviteObject();
             inviteObject.save({
               email: email,
-              cheatMode: false
+              cheatMode: false,
+              registered: false
             }, {
               success: function(object) {
                 callback("ok",object);
