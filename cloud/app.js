@@ -55,7 +55,6 @@ function decrypt(text){
 // path and HTTP verb using the Express routing API.
 app.post('/feedback', function(req, res){
   content = JSON.parse(req.body.feedback);
-  console.log(content.browser);
   if(!content.browser || !content.url || !content.note || !content.img || !content.html){
     if(!content.browser){
       return res.status(500).send("browser");
@@ -73,10 +72,11 @@ app.post('/feedback', function(req, res){
       return res.status(500).send("html");
     }
   }else{
-    res.end("OK");
     Feedback.save(content.browser, content.url, content.note, content.img, content.html, function (result) {
       if(result != 'OK'){
         alert(content.browser+" | "+content.url+" | "+content.note+" | "+content.img+" | "+content.html)
+      }else{
+        res.end();
       }
     });
   }
