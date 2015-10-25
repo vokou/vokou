@@ -291,7 +291,7 @@ app.get('/search',function(req,res){
   };
   // Send the dimensions to Parse along with the 'search' event
 
-  Parse.Analytics.track('search', dimensions)
+  Parse.Analytics.track('searchBRG', dimensions)
 
   country = '';
   if(req.query.country){
