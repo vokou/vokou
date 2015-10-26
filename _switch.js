@@ -1,3 +1,4 @@
+import versions from './versions.json';
 var fs = require('fs');
 var parseStream = fs.createWriteStream(".parse.local");
 
@@ -36,15 +37,10 @@ parseStream.once('open', function(fd) {
 var indexStream = fs.createWriteStream("./public/index.html");
 
 indexStream.once('open', fd => {
-  var vendor = '';
-  var bundle = '';
-  if(process.env.V_ENV == 'PRO') {
-    vendor = 'https://s3.amazonaws.com/vokou-pro/vendors.js';
-    bundle = 'https://s3.amazonaws.com/vokou-pro/bundle.js';
-  } else{
-    vendor = 'https://s3.amazonaws.com/vokou/vendors.js';
-    bundle = 'https://s3.amazonaws.com/vokou/bundle.js';
-  }
+  var pro = process.env.V_ENV == 'PRO' ? '-pro' : '';
+  var vendor = `https://s3.amazonaws.com/vokou${pro}/vendors${process.env.UV == 'T' ? process.env.TS : versions.vendors}.js`;
+  var bundle = `https://s3.amazonaws.com/vokou${pro}/bundle${process.env.TS}.js`;
+
   var htmlTemplate = `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -52,7 +48,7 @@ indexStream.once('open', fd => {
     <title>Vokou</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://s3.amazonaws.com/vokou/style.css">
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
   </head>
   <body>
@@ -64,4 +60,12 @@ indexStream.once('open', fd => {
 `;
   indexStream.write(htmlTemplate);
   indexStream.end();
+
+  var versionStream = fs.createWriteStream("./versions.json");
+  versionStream.once('open', fd => {
+    versions.vendors = process.env.UV == 'T' ? process.env.TS : versions.vendors;
+    versions.bundle = process.env.TS;
+    versionStream.write(JSON.stringify(versions));
+    versionStream.end();
+  });
 });

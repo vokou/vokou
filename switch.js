@@ -1,4 +1,10 @@
-"use strict";
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _versionsJson = require('./versions.json');
+
+var _versionsJson2 = _interopRequireDefault(_versionsJson);
 
 var fs = require('fs');
 var parseStream = fs.createWriteStream(".parse.local");
@@ -38,17 +44,20 @@ parseStream.once('open', function (fd) {
 var indexStream = fs.createWriteStream("./public/index.html");
 
 indexStream.once('open', function (fd) {
-  var vendor = '';
-  var bundle = '';
-  if (process.env.V_ENV == 'PRO') {
-    vendor = 'https://s3.amazonaws.com/vokou-pro/vendors.js';
-    bundle = 'https://s3.amazonaws.com/vokou-pro/bundle.js';
-  } else {
-    vendor = 'https://s3.amazonaws.com/vokou/vendors.js';
-    bundle = 'https://s3.amazonaws.com/vokou/bundle.js';
-  }
-  var htmlTemplate = "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\">\n    <title>Vokou</title>\n    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css\">\n    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>\n    <link rel=\"stylesheet\" href=\"./style.css\">\n    <script src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n  </head>\n  <body>\n    <div id=\"app\"></div>\n    <script src=\"" + vendor + "\"></script>\n    <script src=\"" + bundle + "\"></script>\n  </body>\n</html>\n";
+  var pro = process.env.V_ENV == 'PRO' ? '-pro' : '';
+  var vendor = 'https://s3.amazonaws.com/vokou' + pro + '/vendors' + (process.env.UV == 'T' ? process.env.TS : _versionsJson2['default'].vendors) + '.js';
+  var bundle = 'https://s3.amazonaws.com/vokou' + pro + '/bundle' + process.env.TS + '.js';
+
+  var htmlTemplate = '<!DOCTYPE html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8">\n    <title>Vokou</title>\n    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">\n    <link href=\'https://fonts.googleapis.com/css?family=Roboto:400,300,500\' rel=\'stylesheet\' type=\'text/css\'>\n    <link rel="stylesheet" href="https://s3.amazonaws.com/vokou/style.css">\n    <script src="http://code.jquery.com/jquery-latest.min.js"></script>\n  </head>\n  <body>\n    <div id="app"></div>\n    <script src="' + vendor + '"></script>\n    <script src="' + bundle + '"></script>\n  </body>\n</html>\n';
   indexStream.write(htmlTemplate);
   indexStream.end();
+
+  var versionStream = fs.createWriteStream("./versions.json");
+  versionStream.once('open', function (fd) {
+    _versionsJson2['default'].vendors = process.env.UV == 'T' ? process.env.TS : _versionsJson2['default'].vendors;
+    _versionsJson2['default'].bundle = process.env.TS;
+    versionStream.write(JSON.stringify(_versionsJson2['default']));
+    versionStream.end();
+  });
 });
 
