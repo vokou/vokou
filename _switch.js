@@ -38,7 +38,13 @@ var indexStream = fs.createWriteStream("./public/index.html");
 
 indexStream.once('open', fd => {
   var pro = process.env.V_ENV == 'PRO' ? '-pro' : '';
-  var vendor = `https://s3.amazonaws.com/vokou${pro}/vendors${process.env.UV == 'T' ? process.env.TS : versions.vendors}.js`;
+  var vendorsVersion = '';
+  if (process.env.V_ENV == 'PRO') {
+    vendorsVersion = process.env.UV == 'T' ? process.env.TS : versions.production.vendors;
+  } else {
+    vendorsVersion = process.env.UV == 'T' ? process.env.TS : versions.test.vendors;
+  }
+  var vendor = `https://s3.amazonaws.com/vokou${pro}/vendors${vendorsVersion}.js`;
   var bundle = `https://s3.amazonaws.com/vokou${pro}/bundle${process.env.TS}.js`;
 
   var htmlTemplate = `<!DOCTYPE html>
@@ -63,8 +69,13 @@ indexStream.once('open', fd => {
 
   var versionStream = fs.createWriteStream("./versions.json");
   versionStream.once('open', fd => {
-    versions.vendors = process.env.UV == 'T' ? process.env.TS : versions.vendors;
-    versions.bundle = process.env.TS;
+    if (process.env.V_ENV == 'PRO') {
+      versions.production.vendors = process.env.UV == 'T' ? process.env.TS : versions.production.vendors;
+      versions.production.bundle = process.env.TS;
+    } else {
+      versions.test.vendors = process.env.UV == 'T' ? process.env.TS : versions.test.vendors;
+      versions.test.bundle = process.env.TS;
+    }
     versionStream.write(JSON.stringify(versions));
     versionStream.end();
   });
